@@ -1,0 +1,19 @@
+{
+  "name": "league.brettanderson.me",
+  "version": "0.0.0",
+  "description": "A place for friends to make bets on anything",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/brett-anderson/league.git"
+  },
+  "author": "Brett Anderson",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/brett-anderson/league/issues"
+  },
+  "homepage": "https://github.com/brett-anderson/league"
+}
