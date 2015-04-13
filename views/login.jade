@@ -1,7 +1,4 @@
-extends layout
-
-block content
-  div.container
+div.container
     h1.text-center League
     p(id='league')
     div.row-fluid
@@ -15,5 +12,3 @@ block content
             input(type="password", required, name="password", placeholder="Enter Password").form-control
           div
             input(type="submit", value="Log In").btn.btn-default
-
-  script(type="text/jsx" src="javascripts/build/league.js")

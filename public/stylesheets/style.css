@@ -1,8 +1,21 @@
 body {
   padding: 50px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  background: #efefef;
 }
 
 a {
   color: #00B7FF;
+}
+
+.col-centered{
+    float: none;
+    margin: 0 auto;
+}
+.login{
+  margin-top: 5%;
+  background: white;
+  box-shadow: 1px 1px 5px #ccc;
+  padding: 30px;
+  border-radius: 5px;
 }
