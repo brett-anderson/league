@@ -1,0 +1,17 @@
+extends layout
+
+block content
+  div.container
+      h1.text-center Sign Up
+      p(id='league')
+      div.row-fluid
+        div.col-md-3.col-centered.login
+          form(action="/user", method="post")
+            div.form-group
+              label(for="username") Username:
+              input(type="text",required, name="username", placeholder="Enter Username" id="username").form-control
+            div.form-group
+              label(for="password")  Password:
+              input(type="password", required, name="password", placeholder="Enter Password").form-control
+            div
+              input(type="submit", value="signup").btn.btn-default
