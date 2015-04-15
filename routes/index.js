@@ -52,15 +52,6 @@ module.exports = function(passport){
     req.logout();
     res.redirect('/');
   });
-
-  router.get('/api/user', isAuthenticated, function(req, res){
-    res.json(req.user);
-  });
-  router.get('/api/users', isAuthenticated, function(req, res){
-    var users = User.find(function(err, users) {
-      if (err) return console.error(err);
-      res.json(users);
-    });
-  })
+  
   return router;
 }

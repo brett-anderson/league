@@ -41,8 +41,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 initPassport(passport);
 
 var routes = require('./routes/index')(passport);
+var api    = require('./routes/api')(passport);
 
 app.use('/', routes);
+app.use('/api', api);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
