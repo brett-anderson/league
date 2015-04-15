@@ -8,21 +8,21 @@ var isAuthenticated = function (req, res, next) {
   if (req.isAuthenticated())
     return next();
   // if the user is not authenticated then redirect him to the login page
-  res.redirect('/');
+  res.redirect('/login');
 }
 
 module.exports = function(passport){
 
   /* GET login page. */
-  router.get('/', function(req, res) {
-      // Display the Login page with any flash message, if any
+  router.get('/login', function(req, res) {
+
     res.render('index', { message: req.flash('message') });
   });
 
   /* Handle Login POST */
   router.post('/login', passport.authenticate('login', {
-    successRedirect: '/home',
-    failureRedirect: '/',
+    successRedirect: '/',
+    failureRedirect: '/login',
     failureFlash : true  
   }));
 
@@ -33,13 +33,13 @@ module.exports = function(passport){
 
   /* Handle Registration POST */
   router.post('/signup', passport.authenticate('signup', {
-    successRedirect: '/home',
+    successRedirect: '/',
     failureRedirect: '/signup',
     failureFlash : true  
   }));
 
   /* GET Home Page */
-  router.get('/home', isAuthenticated, function(req, res){
+  router.get('/', isAuthenticated, function(req, res){
     res.render('home', { user: req.user });
   });
 

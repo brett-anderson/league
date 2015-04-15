@@ -41,6 +41,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 initPassport(passport);
 
 var routes = require('./routes/index')(passport);
+
 app.use('/', routes);
 
 // catch 404 and forward to error handler
