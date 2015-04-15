@@ -1,5 +1,8 @@
 var express = require('express');
 var router = express.Router();
+var User = require('../models/user');
+// var mongoose = require('mongoose');
+// var dbConfig = require('../data/config.js');
 
 var isAuthenticated = function (req, res, next) {
   // if user is authenticated in the session, call the next() to call the next request handler 
@@ -40,6 +43,7 @@ module.exports = function(passport){
 
   /* GET Home Page */
   router.get('/', isAuthenticated, function(req, res){
+    if(req.path)
     res.render('home', { user: req.user });
   });
 
@@ -49,5 +53,14 @@ module.exports = function(passport){
     res.redirect('/');
   });
 
+  router.get('/api/user', isAuthenticated, function(req, res){
+    res.json(req.user);
+  });
+  router.get('/api/users', isAuthenticated, function(req, res){
+    var users = User.find(function(err, users) {
+      if (err) return console.error(err);
+      res.json(users);
+    });
+  })
   return router;
 }

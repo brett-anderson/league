@@ -19,3 +19,6 @@ a {
   padding: 30px;
   border-radius: 5px;
 }
+.form-control {
+    margin: 10px 0px;
+}

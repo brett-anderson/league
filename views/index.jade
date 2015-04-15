@@ -7,13 +7,12 @@ block content
     div.row-fluid
       div.col-md-3.col-centered.login
         form(class='form-signin', action='/login', method='POST')
-              input(type='text', name='username' class='form-control', placeholder='Email',required, autofocus)
-              input(type='password', name='password' class='form-control', placeholder='Password', required)
+              input.form-control(type='text', name='username' placeholder='username',required, autofocus)
+              input.form-control(type='password', name='password', placeholder='Password', required)
               button(class='btn btn-lg btn-primary btn-block', type='submit') Sign in
-              span.clearfix
-          a(href='/signup', class='text-center new-account') Create an account
           #message
           if message
             h1.text-center.error-message #{message}
+        a(href='/signup', class='btn btn-lg btn-primary btn-block') Create an account
 
   script(type="text/jsx" src="javascripts/build/league.js")
