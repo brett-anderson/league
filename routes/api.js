@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var User = require('../models/user');
+var Bet  = require('../models/bet');
 
 var isAuthenticated = function (req, res, next) {
   // if user is authenticated in the session, call the next() to call the next request handler 
@@ -29,5 +30,37 @@ module.exports = function(passport){
       .select('username')
       .exec(callback);
   });
+  router.get('/bets', isAuthenticated, function(req, res){
+    var callback = function(err, data) {
+      if(err) {
+        console.log(err);
+      } else {
+        res.json(data)
+      }
+    }
+    Bet
+      .find()
+      .exec(callback);
+  });
+  router.post('/bets', isAuthenticated, function(reqest, response){
+
+    var callback = function(err, data) {
+      if(err) {
+        console.log(err);
+      } else {
+        response.json(data);
+      }
+    } 
+    // res.json(req.body);
+    var res = {
+        message: 'Bet Placed',
+        code : 200
+    };
+    response.statusCode = 200;
+
+    response.json(res);
+
+
+  })
   return router;
 }
