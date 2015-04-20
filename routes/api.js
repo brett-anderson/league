@@ -56,6 +56,7 @@ module.exports = function(passport){
     locals.bet = new Bet();
     locals.bet._creator = user._id;
     locals.bet.title    = request.body.title;
+    locals.bet.expires  = request.body.expires;
     locals.bet.participants = [{ 
       user: user._id, 
       amount: parseInt(request.body.amount),

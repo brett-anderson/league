@@ -1,4 +1,5 @@
 /** @jsx React.DOM */
+console.log(moment());
 var Participant = React.createClass({
   getInitialState: function() {
     return {data: []};
@@ -17,7 +18,6 @@ var ParticipantList = React.createClass({
     return {data: []};
   },
   render: function(){
-    console.log(this.props);
     var participantNodes = this.props.data.map(function(participant, index) {
         return (
           <Participant amount={participant.amount} user={participant.user} key={index} />
@@ -37,12 +37,16 @@ var Bet = React.createClass({
     return {data: []};
   },
   render: function() {
-
+    var now = moment();
+    var formattedText = moment(this.props.expires).format('ddd h:mmA');
     return (
       <div className="bet">
         <h3 className="betTitle">
           {this.props.title}
         </h3>
+        <p className="muted">
+          {formattedText}
+        </p>
         <ParticipantList data={this.props.participants}>
         </ParticipantList>
       </div>
@@ -56,6 +60,7 @@ var BetContainer = React.createClass({
       url: this.props.url,
       dataType: 'json',
       success: function(data) {
+        console.log(data);
         this.setState({data: data});
       }.bind(this),
       error: function(xhr, status, err) {
@@ -93,9 +98,8 @@ var BetContainer = React.createClass({
   render: function() {
     return (
       <div className="bet-container">
-        <h1>Bets</h1>
-        <BetList data={this.state.data} />
         <BetForm onBetSubmit={this.handleBetSubmit} />
+        <BetList data={this.state.data}/>
       </div>
     );
   }
@@ -105,11 +109,12 @@ var BetList = React.createClass({
   render: function() {
     var betNodes = this.props.data.map(function(bet, index) {
       return (
-        <Bet title={bet.title} key={index} participants={bet.participants} />
+        <Bet title={bet.title} key={index} expires={bet.expires} participants={bet.participants} />
       );
     });
     return (
-      <div className="bet-list">
+      <div className="bet-list col-md-6">
+        <h2>Bet List </h2>
         {betNodes}
       </div>
     );
@@ -121,20 +126,25 @@ var BetForm = React.createClass({
     e.preventDefault();
     var amount = React.findDOMNode(this.refs.amount).value.trim();
     var title = React.findDOMNode(this.refs.title).value.trim();
-    if (!title || !amount) {
+    var expires = React.findDOMNode(this.refs.expires).value.trim();
+    if (!title || !amount || !expires) {
       return;
     }
-    this.props.onBetSubmit({amount: amount, title: title});
+    this.props.onBetSubmit({amount: amount, title: title, expires: expires});
     React.findDOMNode(this.refs.amount).value = '';
     React.findDOMNode(this.refs.title).value = '';
+    React.findDOMNode(this.refs.expires).value = '';
+
   },
   render: function() {
 
 
     return (
-      <form className="betForm form-signin" onSubmit={this.handleSubmit}>
+      <form className="betForm form-signin col-md-3" onSubmit={this.handleSubmit}>
+        <h3>Submit Bet</h3>
         <input type="text" placeholder="condition" ref="title" className="form-control"/>
         <input type="num" placeholder="amount" ref="amount" className="form-control" />
+        <input type="date" placeholder="expires" ref="expires" className="form-control" />
         <button type="submit" className="btn btn-lg btn-primary btn-block">Place Bet</button>
       </form>
     );
