@@ -1,26 +1,19 @@
 /** @jsx React.DOM */
-var Participant = React.createClass({displayName: "Participant",
-  getInitialState: function() {
-    return {data: []};
-  },
-  render: function() {
-    var amountString = (this.props.amount > 0) ? "For" : "Against";
-    return (
-      React.createElement("div", {className: "particpant"}, 
-        React.createElement("p", {className: "amount"}, "User: ", this.props.user.username, " bets ", Math.abs(this.props.amount), " ", amountString)
-      )
-    )
-  }
-})
 var ParticipantList = React.createClass({displayName: "ParticipantList",
   getInitialState: function(){
     return {data: []};
   },
   render: function(){
-    console.log(this.props);
+
     var participantNodes = this.props.data.map(function(participant, index) {
         return (
-          React.createElement(Participant, {amount: participant.amount, user: participant.user, key: index})
+          // `key` is a React-specific concept and is not mandatory for the
+          // purpose of this tutorial. if you're curious, see more here:
+          // http://facebook.github.io/react/docs/multiple-components.html#dynamic-children
+          React.createElement(Participant, {amount: participant.amount, key: index}, 
+            participant.user.first_name, 
+            bet.amount
+          )
         );
       });
     return (
@@ -40,10 +33,10 @@ var Bet = React.createClass({displayName: "Bet",
 
     return (
       React.createElement("div", {className: "bet"}, 
-        React.createElement("h3", {className: "betTitle"}, 
+        React.createElement("h2", {className: "betTitle"}, 
           this.props.title
         ), 
-        React.createElement(ParticipantList, {data: this.props.participants}
+        React.createElement(ParticipantList, {data: this.state.data}
         )
       )
     );
@@ -65,6 +58,7 @@ var BetContainer = React.createClass({displayName: "BetContainer",
   },
   handleBetSubmit: function(bet) {
     var bets = this.state.data;
+    bets.push(bet);
     this.setState({data: bets}, function() {
       // `setState` accepts a callback. To avoid (improbable) race condition,
       // `we'll send the ajax request right after we optimistically set the new
@@ -75,7 +69,8 @@ var BetContainer = React.createClass({displayName: "BetContainer",
         type: 'POST',
         data: bet,
         success: function(data) {
-          this.setState({data: data});
+
+          // this.setState({data: bets});
         }.bind(this),
         error: function(xhr, status, err) {
 
@@ -105,7 +100,9 @@ var BetList = React.createClass({displayName: "BetList",
   render: function() {
     var betNodes = this.props.data.map(function(bet, index) {
       return (
-        React.createElement(Bet, {title: bet.title, key: index, participants: bet.participants})
+        React.createElement(Bet, {title: bet.title, key: index, participants: bet.participants}, 
+          React.createElement(ParticipantList, {data: this.state.data})
+        )
       );
     });
     return (

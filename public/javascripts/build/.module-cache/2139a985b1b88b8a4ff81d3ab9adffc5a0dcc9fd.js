@@ -1,18 +1,18 @@
 /** @jsx React.DOM */
-var Participant = React.createClass({
+var Participant = React.createClass({displayName: "Participant",
   getInitialState: function() {
     return {data: []};
   },
   render: function() {
     var amountString = (this.props.amount > 0) ? "For" : "Against";
     return (
-      <div className="particpant">
-        <p className="amount">User: {this.props.user.username} bets {Math.abs(this.props.amount)} {amountString}</p>
-      </div>
+      React.createElement("div", {className: "particpant"}, 
+        React.createElement("p", {className: "amount"}, "User: ", this.props.user.username, " bets ", Math.abs(this.props.amount), " ", amountString)
+      )
     )
   }
 })
-var ParticipantList = React.createClass({
+var ParticipantList = React.createClass({displayName: "ParticipantList",
   getInitialState: function(){
     return {data: []};
   },
@@ -20,37 +20,37 @@ var ParticipantList = React.createClass({
     console.log(this.props);
     var participantNodes = this.props.data.map(function(participant, index) {
         return (
-          <Participant amount={participant.amount} user={participant.user} key={index} />
+          React.createElement(Participant, {amount: participant.amount, user: participant.user, key: index})
         );
       });
     return (
-      <div className="participant-list">
-        {participantNodes}
-      </div>
+      React.createElement("div", {className: "participant-list"}, 
+        participantNodes
+      )
     );
   }
 });
 
 
-var Bet = React.createClass({ 
+var Bet = React.createClass({displayName: "Bet", 
   getInitialState: function() {
     return {data: []};
   },
   render: function() {
 
     return (
-      <div className="bet">
-        <h3 className="betTitle">
-          {this.props.title}
-        </h3>
-        <ParticipantList data={this.props.participants}>
-        </ParticipantList>
-      </div>
+      React.createElement("div", {className: "bet"}, 
+        React.createElement("h2", {className: "betTitle"}, 
+          this.props.title
+        ), 
+        React.createElement(ParticipantList, {data: this.props.participants}
+        )
+      )
     );
   }
 });
 
-var BetContainer = React.createClass({
+var BetContainer = React.createClass({displayName: "BetContainer",
   loadBetsFromServer: function() {
     $.ajax({
       url: this.props.url,
@@ -65,6 +65,8 @@ var BetContainer = React.createClass({
   },
   handleBetSubmit: function(bet) {
     var bets = this.state.data;
+    console.log(bets);
+    bets.push(bet);
     this.setState({data: bets}, function() {
       // `setState` accepts a callback. To avoid (improbable) race condition,
       // `we'll send the ajax request right after we optimistically set the new
@@ -75,7 +77,8 @@ var BetContainer = React.createClass({
         type: 'POST',
         data: bet,
         success: function(data) {
-          this.setState({data: data});
+
+          // this.setState({data: bets});
         }.bind(this),
         error: function(xhr, status, err) {
 
@@ -92,31 +95,31 @@ var BetContainer = React.createClass({
   },
   render: function() {
     return (
-      <div className="bet-container">
-        <h1>Bets</h1>
-        <BetList data={this.state.data} />
-        <BetForm onBetSubmit={this.handleBetSubmit} />
-      </div>
+      React.createElement("div", {className: "bet-container"}, 
+        React.createElement("h1", null, "Bets"), 
+        React.createElement(BetList, {data: this.state.data}), 
+        React.createElement(BetForm, {onBetSubmit: this.handleBetSubmit})
+      )
     );
   }
 });
 
-var BetList = React.createClass({
+var BetList = React.createClass({displayName: "BetList",
   render: function() {
     var betNodes = this.props.data.map(function(bet, index) {
       return (
-        <Bet title={bet.title} key={index} participants={bet.participants} />
+        React.createElement(Bet, {title: bet.title, key: index, participants: bet.participants})
       );
     });
     return (
-      <div className="bet-list">
-        {betNodes}
-      </div>
+      React.createElement("div", {className: "bet-list"}, 
+        betNodes
+      )
     );
   }
 });
 
-var BetForm = React.createClass({
+var BetForm = React.createClass({displayName: "BetForm",
   handleSubmit: function(e) {
     e.preventDefault();
     var amount = React.findDOMNode(this.refs.amount).value.trim();
@@ -132,16 +135,16 @@ var BetForm = React.createClass({
 
 
     return (
-      <form className="betForm form-signin" onSubmit={this.handleSubmit}>
-        <input type="text" placeholder="condition" ref="title" className="form-control"/>
-        <input type="num" placeholder="amount" ref="amount" className="form-control" />
-        <button type="submit" className="btn btn-lg btn-primary btn-block">Place Bet</button>
-      </form>
+      React.createElement("form", {className: "betForm form-signin", onSubmit: this.handleSubmit}, 
+        React.createElement("input", {type: "text", placeholder: "condition", ref: "title", className: "form-control"}), 
+        React.createElement("input", {type: "num", placeholder: "amount", ref: "amount", className: "form-control"}), 
+        React.createElement("button", {type: "submit", className: "btn btn-lg btn-primary btn-block"}, "Place Bet")
+      )
     );
   }
 });
 
 React.render(
-  <BetContainer url="api/bets" pollInterval={1200} />,
+  React.createElement(BetContainer, {url: "api/bets", pollInterval: 1200}),
   document.getElementById('bets')
 );

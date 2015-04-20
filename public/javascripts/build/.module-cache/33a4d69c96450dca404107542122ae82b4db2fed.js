@@ -1,30 +1,19 @@
 /** @jsx React.DOM */
-var Participant = React.createClass({displayName: "Participant",
-  getInitialState: function() {
-    return {data: []};
-  },
-  render: function() {
-    var amountString = (this.props.amount > 0) ? "For" : "Against";
-    return (
-      React.createElement("div", {className: "particpant"}, 
-        React.createElement("p", {className: "amount"}, "User: ", this.props.user.username, " bets ", Math.abs(this.props.amount), " ", amountString)
-      )
-    )
-  }
-})
 var ParticipantList = React.createClass({displayName: "ParticipantList",
-  getInitialState: function(){
-    return {data: []};
-  },
   render: function(){
-    console.log(this.props);
     var participantNodes = this.props.data.map(function(participant, index) {
         return (
-          React.createElement(Participant, {amount: participant.amount, user: participant.user, key: index})
+          // `key` is a React-specific concept and is not mandatory for the
+          // purpose of this tutorial. if you're curious, see more here:
+          // http://facebook.github.io/react/docs/multiple-components.html#dynamic-children
+          React.createElement(Participant, {amount: participant.amount, key: index}, 
+            participant.user.first_name, 
+            bet.amount
+          )
         );
       });
     return (
-      React.createElement("div", {className: "participant-list"}, 
+      React.createElement("div", {className: "betList"}, 
         participantNodes
       )
     );
@@ -33,17 +22,14 @@ var ParticipantList = React.createClass({displayName: "ParticipantList",
 
 
 var Bet = React.createClass({displayName: "Bet", 
-  getInitialState: function() {
-    return {data: []};
-  },
   render: function() {
 
     return (
       React.createElement("div", {className: "bet"}, 
-        React.createElement("h3", {className: "betTitle"}, 
+        React.createElement("h2", {className: "betTitle"}, 
           this.props.title
         ), 
-        React.createElement(ParticipantList, {data: this.props.participants}
+        React.createElement(ParticipantList, {data: this.state.data}
         )
       )
     );
@@ -56,15 +42,17 @@ var BetContainer = React.createClass({displayName: "BetContainer",
       url: this.props.url,
       dataType: 'json',
       success: function(data) {
+        console.log(data);
         this.setState({data: data});
       }.bind(this),
       error: function(xhr, status, err) {
-
+        console.error(this.props.url, status, err.toString());
       }.bind(this)
     });
   },
   handleBetSubmit: function(bet) {
     var bets = this.state.data;
+    bets.push(bet);
     this.setState({data: bets}, function() {
       // `setState` accepts a callback. To avoid (improbable) race condition,
       // `we'll send the ajax request right after we optimistically set the new
@@ -75,10 +63,11 @@ var BetContainer = React.createClass({displayName: "BetContainer",
         type: 'POST',
         data: bet,
         success: function(data) {
-          this.setState({data: data});
+          console.log(data);
+          // this.setState({data: bets});
         }.bind(this),
         error: function(xhr, status, err) {
-
+          console.error(this.props.url, status, err.toString());
         }.bind(this)
       });
     });
@@ -92,7 +81,7 @@ var BetContainer = React.createClass({displayName: "BetContainer",
   },
   render: function() {
     return (
-      React.createElement("div", {className: "bet-container"}, 
+      React.createElement("div", {className: "betContainer"}, 
         React.createElement("h1", null, "Bets"), 
         React.createElement(BetList, {data: this.state.data}), 
         React.createElement(BetForm, {onBetSubmit: this.handleBetSubmit})
@@ -105,11 +94,17 @@ var BetList = React.createClass({displayName: "BetList",
   render: function() {
     var betNodes = this.props.data.map(function(bet, index) {
       return (
-        React.createElement(Bet, {title: bet.title, key: index, participants: bet.participants})
+        // `key` is a React-specific concept and is not mandatory for the
+        // purpose of this tutorial. if you're curious, see more here:
+        // http://facebook.github.io/react/docs/multiple-components.html#dynamic-children
+        React.createElement(Bet, {amount: bet.amount, title: bet.title, key: index}, 
+          bet.title, 
+          bet.amount
+        )
       );
     });
     return (
-      React.createElement("div", {className: "bet-list"}, 
+      React.createElement("div", {className: "betList"}, 
         betNodes
       )
     );
@@ -129,8 +124,6 @@ var BetForm = React.createClass({displayName: "BetForm",
     React.findDOMNode(this.refs.title).value = '';
   },
   render: function() {
-
-
     return (
       React.createElement("form", {className: "betForm form-signin", onSubmit: this.handleSubmit}, 
         React.createElement("input", {type: "text", placeholder: "condition", ref: "title", className: "form-control"}), 

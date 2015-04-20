@@ -1,7 +1,13 @@
-var express = require('express');
-var router = express.Router();
+'use strict';
+/* global require: false  */
+/* global module: false  */
+/* global console: false  */
+/* global next: false  */
+var express = require('express'); 
+var router = express.Router(); 
 var User = require('../models/user');
 var Bet  = require('../models/bet');
+var async = require('../bower_components/async/lib/async');
 
 var isAuthenticated = function (req, res, next) {
   // if user is authenticated in the session, call the next() to call the next request handler 
@@ -11,7 +17,7 @@ var isAuthenticated = function (req, res, next) {
     return next();
   // if the user is not authenticated then redirect him to the login page
   res.redirect('/login');
-}
+};
 
 module.exports = function(passport){
   router.get('/user', isAuthenticated, function(req, res){
@@ -20,11 +26,11 @@ module.exports = function(passport){
   router.get('/users', isAuthenticated, function(req, res){
     var callback = function(err, data) {
       if(err){
-        console.log(err)
+        console.log(err);
       } else {
         res.json(data);
       }
-    }
+    };
     User
       .find()
       .select('username')
@@ -35,32 +41,70 @@ module.exports = function(passport){
       if(err) {
         console.log(err);
       } else {
-        res.json(data)
+        res.json(data);
       }
-    }
+    };
     Bet
       .find()
+      .populate('_creator')
+      .populate('participants.user')
       .exec(callback);
   });
-  router.post('/bets', isAuthenticated, function(reqest, response){
+  router.post('/bets', isAuthenticated, function(request, response){
+    var locals = {},
+        user = request.user;
+    locals.bet = new Bet();
+    locals.bet._creator = user._id;
+    locals.bet.title    = request.body.title;
+    locals.bet.participants = [{ 
+      user: user._id, 
+      amount: parseInt(request.body.amount),
+      bettingFor: true,
+      expires: request.expires
+    }];
 
-    var callback = function(err, data) {
-      if(err) {
-        console.log(err);
-      } else {
-        response.json(data);
+    var checkForCredits = function(callback) {
+      if(user.credits < request.body.amount) {
+        return callback(new Error('No user with name '+name+' found.'));
       }
-    } 
-    // res.json(req.body);
-    var res = {
-        message: 'Bet Placed',
-        code : 200
+      return callback();
     };
-    response.statusCode = 200;
 
-    response.json(res);
+    var saveBet = function(callback) {
+      locals.bet.save(function(err) {
+        if (err){
+            console.log('Error in Saving user: '+err);  
+            return callback(new Error(err));
+        }
+        return callback();
+      });
+    };
 
+    var returnJson = function(err) {
+        if (err) {
+          console.log(err);
+          return next(err);
+        }
+        var cb = function(err, data) {
+          if(err) {
+            console.log(err);
+            response.statusCode = 200;
+            response.error = true;
+            response.json(data);
+          } 
+          else {
+            response.statusCode = 200;
+            response.json(data);
+          }
+        };
+        Bet
+          .find()
+          .populate('_creator')
+          .populate('participants.user')
+          .exec(cb);
+    };
 
-  })
+    async.series([ checkForCredits, saveBet ], returnJson);
+  });
   return router;
-}
+};

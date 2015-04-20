@@ -11,15 +11,16 @@ block content
             li Email    ---> #{user.email}
             li First Name ---> #{user.firstName} 
             li Last Name ---> #{user.lastName}
+            li Credits ---> #{user.credits}
+
     div.row-fluid
-      //- div.col-md-3.col-centered.login
+      div#bets.col-md-6.col-centered
       //-   form(class='form-signin', action='/api/bet', method='POST')
       //-         input.form-control(type='text', name='title' placeholder='title', required, autofocus)
       //-         input.form-control(type='num', name='amount' placeholder='amount', required, autofocus)
 
       //-         button(class='btn btn-lg btn-primary btn-block', type='submit') Create Bet
       //-     #message
-      //-     if message
-      //-       h1.text-center.error-message #{message}
-      div#bets
+      if message
+        h1.text-center.error-message #{message}
     a(href='/signout', class='text-center new-account') Sign Out
