@@ -53,6 +53,26 @@ module.exports = function(passport){
   router.post('/bets', isAuthenticated, function(request, response){
     var locals = {},
         user = request.user;
+
+    var getOrCreateBet = function(callback) {
+
+      if(request.body.bet) {
+        Bet
+          .find({_id: request.body.bet}, function(err, bet){
+            if( err ) return callback(new Error('Could not find bet'));
+            console.log(bet);
+            locals.bet = bet[0];
+            locals.bet.participants.push({
+              user: user._id,
+              amount: parseInt(request.body.amount),
+              bettingFor: false,
+            });
+            return callback();
+          })
+      }
+
+    }
+
     locals.bet = new Bet();
     locals.bet._creator = user._id;
     locals.bet.title    = request.body.title;
@@ -105,7 +125,7 @@ module.exports = function(passport){
           .exec(cb);
     };
 
-    async.series([ checkForCredits, saveBet ], returnJson);
+    async.series([ getOrCreateBet, checkForCredits, saveBet ], returnJson);
   });
   return router;
 };

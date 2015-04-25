@@ -1,5 +1,30 @@
 /** @jsx React.DOM */
-console.log(moment());
+var AcceptButton = React.createClass({
+  getInitialState: function() {
+    return {data: []}
+  },
+  handleClick: function(e) {
+    $.ajax({
+      url: 'api/bets',
+      dataType: 'json',
+      type: 'POST',
+      data: this.props,
+      success: function(data) {
+        this.setState({data: data});
+      }.bind(this),
+      error: function(xhr, status, err) {
+
+      }.bind(this)
+    });
+
+  },
+  render: function() {
+    return (
+      <button className="btn btn-primary" onClick={this.handleClick} >Bet {this.props.amount} against {this.props.username}</button>
+    )
+  }
+});
+
 var Participant = React.createClass({
   getInitialState: function() {
     return {data: []};
@@ -8,7 +33,8 @@ var Participant = React.createClass({
     var amountString = (this.props.amount > 0) ? "For" : "Against";
     return (
       <div className="particpant">
-        <p className="amount">User: {this.props.user.username} bets {Math.abs(this.props.amount)} {amountString}</p>
+        <p className="amount lead">{this.props.user.username} bets {Math.abs(this.props.amount)} {amountString}</p>
+        <AcceptButton amount={this.props.amount} username={this.props.user.username} bet={this.props.bet}/>
       </div>
     )
   }
@@ -18,9 +44,10 @@ var ParticipantList = React.createClass({
     return {data: []};
   },
   render: function(){
+    var bet = this.props.bet;
     var participantNodes = this.props.data.map(function(participant, index) {
         return (
-          <Participant amount={participant.amount} user={participant.user} key={index} />
+          <Participant amount={participant.amount} user={participant.user} key={index} bet={bet} />
         );
       });
     return (
@@ -44,11 +71,10 @@ var Bet = React.createClass({
         <h3 className="betTitle">
           {this.props.title}
         </h3>
-        <p className="muted">
+        <p className="text-muted">
           {formattedText}
         </p>
-        <ParticipantList data={this.props.participants}>
-        </ParticipantList>
+        <ParticipantList data={this.props.participants} bet={this.props.bet}/>
       </div>
     );
   }
@@ -60,7 +86,6 @@ var BetContainer = React.createClass({
       url: this.props.url,
       dataType: 'json',
       success: function(data) {
-        console.log(data);
         this.setState({data: data});
       }.bind(this),
       error: function(xhr, status, err) {
@@ -109,7 +134,7 @@ var BetList = React.createClass({
   render: function() {
     var betNodes = this.props.data.map(function(bet, index) {
       return (
-        <Bet title={bet.title} key={index} expires={bet.expires} participants={bet.participants} />
+        <Bet title={bet.title} key={index} expires={bet.expires} participants={bet.participants} bet={bet._id} />
       );
     });
     return (
@@ -137,8 +162,7 @@ var BetForm = React.createClass({
 
   },
   render: function() {
-
-
+    var datePicker = $('')
     return (
       <form className="betForm form-signin col-md-3" onSubmit={this.handleSubmit}>
         <h3>Submit Bet</h3>
@@ -146,6 +170,7 @@ var BetForm = React.createClass({
         <input type="num" placeholder="amount" ref="amount" className="form-control" />
         <input type="date" placeholder="expires" ref="expires" className="form-control" />
         <button type="submit" className="btn btn-lg btn-primary btn-block">Place Bet</button>
+
       </form>
     );
   }

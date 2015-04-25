@@ -1,5 +1,30 @@
 /** @jsx React.DOM */
-console.log(moment());
+var AcceptButton = React.createClass({displayName: "AcceptButton",
+  getInitialState: function() {
+    return {data: []}
+  },
+  handleClick: function(e) {
+    $.ajax({
+      url: 'api/bets',
+      dataType: 'json',
+      type: 'POST',
+      data: this.props,
+      success: function(data) {
+        this.setState({data: data});
+      }.bind(this),
+      error: function(xhr, status, err) {
+
+      }.bind(this)
+    });
+
+  },
+  render: function() {
+    return (
+      React.createElement("button", {className: "btn btn-primary", onClick: this.handleClick}, "Bet ", this.props.amount, " against ", this.props.username)
+    )
+  }
+});
+
 var Participant = React.createClass({displayName: "Participant",
   getInitialState: function() {
     return {data: []};
@@ -8,7 +33,8 @@ var Participant = React.createClass({displayName: "Participant",
     var amountString = (this.props.amount > 0) ? "For" : "Against";
     return (
       React.createElement("div", {className: "particpant"}, 
-        React.createElement("p", {className: "amount"}, "User: ", this.props.user.username, " bets ", Math.abs(this.props.amount), " ", amountString)
+        React.createElement("p", {className: "amount lead"}, this.props.user.username, " bets ", Math.abs(this.props.amount), " ", amountString), 
+        React.createElement(AcceptButton, {amount: this.props.amount, username: this.props.user.username, bet: this.props.bet})
       )
     )
   }
@@ -18,9 +44,10 @@ var ParticipantList = React.createClass({displayName: "ParticipantList",
     return {data: []};
   },
   render: function(){
+    var bet = this.props.bet;
     var participantNodes = this.props.data.map(function(participant, index) {
         return (
-          React.createElement(Participant, {amount: participant.amount, user: participant.user, key: index})
+          React.createElement(Participant, {amount: participant.amount, user: participant.user, key: index, bet: bet})
         );
       });
     return (
@@ -44,11 +71,10 @@ var Bet = React.createClass({displayName: "Bet",
         React.createElement("h3", {className: "betTitle"}, 
           this.props.title
         ), 
-        React.createElement("p", {className: "muted"}, 
+        React.createElement("p", {className: "text-muted"}, 
           formattedText
         ), 
-        React.createElement(ParticipantList, {data: this.props.participants}
-        )
+        React.createElement(ParticipantList, {data: this.props.participants, bet: this.props.bet})
       )
     );
   }
@@ -60,7 +86,6 @@ var BetContainer = React.createClass({displayName: "BetContainer",
       url: this.props.url,
       dataType: 'json',
       success: function(data) {
-        console.log(data);
         this.setState({data: data});
       }.bind(this),
       error: function(xhr, status, err) {
@@ -109,7 +134,7 @@ var BetList = React.createClass({displayName: "BetList",
   render: function() {
     var betNodes = this.props.data.map(function(bet, index) {
       return (
-        React.createElement(Bet, {title: bet.title, key: index, expires: bet.expires, participants: bet.participants})
+        React.createElement(Bet, {title: bet.title, key: index, expires: bet.expires, participants: bet.participants, bet: bet._id})
       );
     });
     return (
@@ -137,8 +162,7 @@ var BetForm = React.createClass({displayName: "BetForm",
 
   },
   render: function() {
-
-
+    var datePicker = $('')
     return (
       React.createElement("form", {className: "betForm form-signin col-md-3", onSubmit: this.handleSubmit}, 
         React.createElement("h3", null, "Submit Bet"), 
@@ -146,6 +170,7 @@ var BetForm = React.createClass({displayName: "BetForm",
         React.createElement("input", {type: "num", placeholder: "amount", ref: "amount", className: "form-control"}), 
         React.createElement("input", {type: "date", placeholder: "expires", ref: "expires", className: "form-control"}), 
         React.createElement("button", {type: "submit", className: "btn btn-lg btn-primary btn-block"}, "Place Bet")
+
       )
     );
   }

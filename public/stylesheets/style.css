@@ -20,5 +20,11 @@ a {
   border-radius: 5px;
 }
 .form-control {
-    margin: 10px 0px;
+    margin: 10px 0;
+}
+.bet {
+  background: white;
+  padding: 5px 10px 20px;
+  box-shadow: 2px 2px 1px #CCC;
+  margin-top: 15px;
 }
